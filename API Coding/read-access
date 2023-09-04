@@ -1,0 +1,92 @@
+YOUR_CLIENT_ID: ab7a5c6a50764046b81b79409029b260
+YOUR_CLIENT_SECRET: aeb68c5ae59b4b92952808de09bee7d1
+
+1. Update src/controllers/trackController.ts:
+
+export const getTrackByISRC = async (req: Request, res: Response) => {
+  const { isrc } = req.params;
+
+  try {
+    const trackRepository = getRepository(Track);
+    const track = await trackRepository.findOne({ where: { isrc } });
+
+    if (track) {
+      res.status(200).json(track);
+    } else {
+      res.status(404).json({ error: 'Track not found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving track by ISRC:', error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
+  }
+};
+
+export const getTracksByArtist = async (req: Request, res: Response) => {
+  const { artist } = req.query;
+
+  try {
+    const trackRepository = getRepository(Track);
+    const tracks = await trackRepository.find({
+      where: { artist: Like(`%${artist}%`) }, // Using "Like" for partial matches
+    });
+
+    res.status(200).json(tracks);
+  } catch (error) {
+    console.error('Error retrieving tracks by artist:', error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
+  }
+};
+
+
+2. Update src/routes/trackRoutes.ts:
+
+import express from 'express';
+import { createTrack, getTracks, getTrackByISRC, getTracksByArtist } from '../controllers/trackController';
+
+const router = express.Router();
+
+router.post('/tracks', createTrack);
+router.get('/tracks', getTracks);
+router.get('/tracks/:isrc', getTrackByISRC); // New endpoint to get track by ISRC
+router.get('/tracks-by-artist', getTracksByArtist); // New endpoint to get tracks by artist
+
+export default router;
+
+
+3. Update swaggerDef.ts:
+import { Options } from 'swagger-jsdoc';
+
+const swaggerDef: Options = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Music Metadata API',
+      version: '1.0.0',
+      description: 'API to store and retrieve music track metadata',
+    },
+  },
+  apis: ['src/routes/*.ts'],
+  parameters: {
+    isrc: {
+      name: 'isrc',
+      in: 'path', // Change from 'body' to 'path'
+      description: 'ISRC identifier of the music track',
+      required: true,
+      schema: {
+        type: 'string',
+      },
+    },
+    artist: {
+      name: 'artist',
+      in: 'query', // Specify that it's a query parameter
+      description: 'Artist name for filtering tracks',
+      required: true,
+      schema: {
+        type: 'string',
+      },
+    },
+  },
+};
+
+export default swaggerDef;
+

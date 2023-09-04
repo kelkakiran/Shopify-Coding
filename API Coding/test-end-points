@@ -1,0 +1,26 @@
+To create a track: Send a POST request to /api/tracks with a JSON body containing the isrc field.
+To get a track by ISRC: Send a GET request to /api/tracks/{ISRC} where {ISRC} is the ISRC identifier of the track.
+
+
+YOUR_CLIENT_ID: ab7a5c6a50764046b81b79409029b260
+YOUR_CLIENT_SECRET: aeb68c5ae59b4b92952808de09bee7d1
+
+
+1. Create a Track:
+
+Send a POST request to http://localhost:3000/api/tracks (or the appropriate URL) using Postman. In the request body, provide the ISRC identifier of a track you want to fetch metadata for.
+
+JSON Object
+{
+  "isrc": "USVT10300001"
+}
+
+
+2. Get a Track by ISRC:
+
+Send a GET request to http://localhost:3000/api/tracks/USVT10300001 (replace USVT10300001 with the actual ISRC of the track you created). This will retrieve the metadata for the track with the provided ISRC.
+
+
+3. Get Tracks by Artist:
+
+Send a GET request to http://localhost:3000/api/tracks-by-artist?artist=Coldplay
